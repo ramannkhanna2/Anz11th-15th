@@ -11,6 +11,9 @@ issue vms : 3003 , 3006
 
 https://etherpad.opendev.org/p/r.5967c5288d71ec8642058f36a21bb316
 
+======================================================================
+
+-- Intraining cluster :
 
 master :
 
@@ -30,8 +33,24 @@ ssh -i "raman-anz.pem" ubuntu@ec2-52-91-99-39.compute-1.amazonaws.com
 ==========================================================================
 
 
-practise docker vm :
+-- practise docker vm :
 
 ssh -i "raman-anz.pem" ubuntu@ec2-98-81-93-251.compute-1.amazonaws.com
 
-==========================================================================
+
+
+-- practise kube cluster :
+
+master :
+ssh -i "raman-anz.pem" ubuntu@ec2-52-91-62-242.compute-1.amazonaws.com
+
+w1 :
+ssh -i "raman-anz.pem" ubuntu@ec2-3-94-78-176.compute-1.amazonaws.com
+
+w2 :
+ssh -i "raman-anz.pem" ubuntu@ec2-52-23-162-232.compute-1.amazonaws.com
+
+==================================================================================
+
+
+
