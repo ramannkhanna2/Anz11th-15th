@@ -23,3 +23,15 @@ ssh -i "raman-anz.pem" ubuntu@ec2-54-89-170-63.compute-1.amazonaws.com
 w2 :
 
 ssh -i "raman-anz.pem" ubuntu@ec2-52-91-99-39.compute-1.amazonaws.com
+
+
+
+
+==========================================================================
+
+
+practise docker vm :
+
+ssh -i "raman-anz.pem" ubuntu@ec2-98-81-93-251.compute-1.amazonaws.com
+
+==========================================================================
