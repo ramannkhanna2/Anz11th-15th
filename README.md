@@ -38,8 +38,9 @@ ssh -i "raman-anz.pem" ubuntu@ec2-52-91-99-39.compute-1.amazonaws.com
 ssh -i "raman-anz.pem" ubuntu@ec2-98-81-93-251.compute-1.amazonaws.com
 
 
+===========================================================================
 
--- practise kube cluster :
+-- practise kube cluster (for aftr training ) :
 
 master :
 ssh -i "raman-anz.pem" ubuntu@ec2-52-91-62-242.compute-1.amazonaws.com
