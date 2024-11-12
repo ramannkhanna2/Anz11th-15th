@@ -14,7 +14,7 @@ https://etherpad.opendev.org/p/r.5967c5288d71ec8642058f36a21bb316
 
 master :
 
-ssh -i "raman-anz.pem" ubuntu@ec2-44-223-1-52.compute-1.amazonaws.com
+ssh -i "raman-anz.pem" ubuntu@ec2-107-22-40-95.compute-1.amazonaws.com
 
 w1 :
 
