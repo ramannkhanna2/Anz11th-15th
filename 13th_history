@@ -1,0 +1,592 @@
+```
+
+      
+
+
+
+deployment 
+   replicasets 
+
+
+
+
+
+
+kubectl apply -f deploy.yaml --record=true
+kubectl rollout status deployment raman-app
+
+
+
+
+
+
+-- nginx:1.14.1 : first version of my application 
+
+deployment : raman-app
+rs : raman-app-6444496947
+
+root@master:~/raman# k get po
+NAME                         READY   STATUS    RESTARTS   AGE
+raman-app-6444496947-5cj9k   1/1     Running   0          90s
+raman-app-6444496947-5qqpb   1/1     Running   0          90s
+raman-app-6444496947-7k6bs   1/1     Running   0          90s
+raman-app-6444496947-d8xrt   1/1     Running   0          90s
+raman-app-6444496947-gmp8m   1/1     Running   0          90s
+raman-app-6444496947-kgb5r   1/1     Running   0          90s
+raman-app-6444496947-s95gh   1/1     Running   0          90s
+raman-app-6444496947-snpt5   1/1     Running   0          90s
+raman-app-6444496947-tx79s   1/1     Running   0          90s
+raman-app-6444496947-xww8c   1/1     Running   0          90s
+
+
+
+
+------------------------------------
+
+
+--- nginx:1.14.2 : second version of my aplction
+
+deploy : raman-app
+rs : raman-app-c955dc6d   
+
+root@master:~/raman# k get po
+NAME                       READY   STATUS    RESTARTS   AGE
+raman-app-c955dc6d-44gkz   1/1     Running   0          6m21s
+raman-app-c955dc6d-6zqbk   1/1     Running   0          6m21s
+raman-app-c955dc6d-d2cdl   1/1     Running   0          6m21s
+raman-app-c955dc6d-fhng8   1/1     Running   0          6m21s
+raman-app-c955dc6d-g58jn   1/1     Running   0          6m21s
+raman-app-c955dc6d-kqjgv   1/1     Running   0          6m21s
+raman-app-c955dc6d-kwhvm   1/1     Running   0          6m21s
+raman-app-c955dc6d-s2h6j   1/1     Running   0          6m21s
+raman-app-c955dc6d-shjk4   1/1     Running   0          6m21s
+raman-app-c955dc6d-vq97s   1/1     Running   0          6m21s 
+
+
+
+---------------------------
+
+--- nginx:latest : thrd version
+
+
+
+rs : raman-app-7bb9777b67
+
+
+root@master:~/raman# k get po
+NAME                         READY   STATUS    RESTARTS   AGE
+raman-app-7bb9777b67-66b8g   1/1     Running   0          71s
+raman-app-7bb9777b67-blb8p   1/1     Running   0          70s
+raman-app-7bb9777b67-df6mj   1/1     Running   0          69s
+raman-app-7bb9777b67-jn8t5   1/1     Running   0          70s
+raman-app-7bb9777b67-jtvkm   1/1     Running   0          72s
+raman-app-7bb9777b67-ltzdd   1/1     Running   0          72s
+raman-app-7bb9777b67-nh8tt   1/1     Running   0          71s
+raman-app-7bb9777b67-nssgx   1/1     Running   0          72s
+raman-app-7bb9777b67-x2hlx   1/1     Running   0          72s
+raman-app-7bb9777b67-xs25d   1/1     Running   0          72s
+
+
+
+
+
+
+rollback : 3rd version 
+        
+
+
+
+
+history :
+
+
+Kubernetes Deployment Startegy -- Rolling Update and Recreate:
+
+
+ vi deploy.yaml 
+ 2015  cat deploy.yaml 
+ 2016  k get deploy
+ 2017  k get rs
+ 2018  kubectl apply -f deploy.yaml --record=true
+ 2019  kubectl rollout status deployment raman-app
+ 2020  k get deploy
+ 2021  k get rs
+ 2022  k get po
+ 2023  vi deploy.yaml 
+ 2024  cat deploy.yaml 
+ 2025  k rollout -h
+ 2026  k rollout history
+ 2027  k rollout history raman-app
+ 2028  k rollout history deploy raman-app
+ 2029  kubectl apply -f deploy.yaml --record=true
+ 2030  kubectl rollout status deployment raman-app
+ 2031  k get deploy
+ 2032  k get rs
+ 2033  k describe  po | grep -i image 
+ 2034  k rollout history deploy raman-app
+ 2035  k get rs
+ 2036  vi deploy.yaml 
+ 2037  k get po
+ 2038  vi deploy.yaml 
+ 2039  k apply -f deploy.yaml --record=true
+ 2040  kubectl rollout status deployment raman-app
+ 2041  k get deploy
+ 2042  k get rs
+ 2043  k get po
+ 2044  k rollout history raman-app
+ 2045  k rollout history deploy raman-app
+ 2046  k describe po | grep -i image
+ 2047  k get rs
+ 2048  kubectl rollout undo deployment raman-app --to-revision=1
+ 2049  k get rs
+ 2050  k describe  po | grep -i image 
+ 2051  kubectl rollout undo deployment raman-app --to-revision=2
+ 2052  k describe  po | grep -i image 
+ 2053  k get rs
+ 
+ 
+ 
+ root@master:~/raman# cat deploy.yaml 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: raman-app
+  labels:
+    app: web2-prod-app
+spec:
+  replicas: 10
+  strategy:
+    #    type: Recreate
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  selector:
+    matchLabels:
+      app: web2-prod-app
+  template:
+    metadata:
+      labels:
+        app: web2-prod-app
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        
+        
+        
+        
+        
+        
+        ============================================================================
+        
+
+
+bluegreen :
+    
+    
+    root@master:~/raman# ls
+deploy.yaml  pod.yml  service.yaml
+root@master:~/raman# cat deploy.yaml 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-green
+  labels:
+    app: web2-prod-app
+spec:
+  replicas: 5
+  strategy:
+    #    type: Recreate
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: httpd-blue
+  labels:
+    app: web2-prod-app2
+spec:
+  replicas: 5
+  strategy:
+    #    type: Recreate
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  selector:
+    matchLabels:
+      app: httpd
+  template:
+    metadata:
+      labels:
+        app: httpd
+    spec:
+      containers:
+      - name: httpd
+        image: httpd
+        ports:
+        - containerPort: 80
+        
+        
+        
+        
+        
+root@master:~/raman# cat service.yaml 
+apiVersion: v1
+kind: Service
+metadata:
+  name: bluegreensvc
+spec:
+  type: NodePort
+  selector:
+    app: httpd
+  ports:
+    - port: 80
+      # By default and for convenience, the `targetPort` is set to
+      # the same value as the `port` field.
+      targetPort: 80
+      # Optional field
+      # By default and for convenience, the Kubernetes control plane
+      # will allocate a port from a range (default: 30000-32767)
+      nodePort: 30007
+      
+      
+      
+      history :
+      
+      k get po --show-labels
+ 2078  clear
+ 2079  k get po
+ 2080  ls
+ 2081  vi service.yaml
+ 2082  k create -f service.yaml 
+ 2083  k get svc
+ 2084  curl 172.31.19.169:30007
+ 2085  k get po
+ 2086  k get po -o wide
+ 2087  k describe svc bluegreensvc
+ 2088  vi service.yaml 
+ 2089  k apply -f service.yaml 
+ 2090  curl 172.31.19.169:30007
+ 2091  clear
+ 2092  ls
+ 2093  cat deploy.yaml 
+ 2094  cat service.yaml 
+ 
+ 
+ 
+ =======================================================================================
+ 
+ canary :
+     
+    
+    
+ history
+ 2096  clear
+ 2097  k get deploy
+ 2098  k delete -f deploy.yaml 
+ 2099  ls
+ 2100  vi deploy.yaml 
+ 2101  cat deploy.yaml 
+ 2102  k create -f deploy.yaml 
+ 2103  k get po --show-labels
+ 2104  vi service.yaml 
+ 2105  k get svc
+ 2106  k delete svc bluegreensvc
+ 2107  k create -f service.yaml 
+ 2108  k get svc
+ 2109  k describe svc bluegreensvc
+ 2110  k get po
+ 2111  k scale deploy httpd-blue --replicas 0
+ 2112  k get po
+ 2113  k scale deploy httpd-blue --replicas 5
+ 2114  k get po
+ 2115  curl 172.31.19.169:30007
+ 2116  k scale deploy httpd-blue --replicas 0
+ 2117  clear
+ 2118  k get deploy
+ 
+ 
+
+root@master:~/raman# cat deploy.yaml 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-green
+  labels:
+    app: web2-prod-app
+spec:
+  replicas: 5
+  strategy:
+    #    type: Recreate
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  selector:
+    matchLabels:
+      app: canary
+  template:
+    metadata:
+      labels:
+        app: canary
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: httpd-blue
+  labels:
+    app: web2-prod-app2
+spec:
+  replicas: 5
+  strategy:
+    #    type: Recreate
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  selector:
+    matchLabels:
+      app: canary
+  template:
+    metadata:
+      labels:
+        app: canary
+    spec:
+      containers:
+      - name: httpd
+        image: httpd
+        ports:
+        - containerPort: 80
+        
+        
+        
+        
+        
+        
+        root@master:~/raman# cat service.yaml 
+apiVersion: v1
+kind: Service
+metadata:
+  name: bluegreensvc
+spec:
+  type: NodePort
+  selector:
+    app: canary
+  ports:
+    - port: 80
+      # By default and for convenience, the `targetPort` is set to
+      # the same value as the `port` field.
+      targetPort: 80
+      # Optional field
+      # By default and for convenience, the Kubernetes control plane
+      # will allocate a port from a range (default: 30000-32767)
+      nodePort: 30007
+      
+      
+      
+      
+      ==============================================================
+      
+      
+      hpa :
+          
+          cat deploy.yaml 
+ 2122  cat service.yaml 
+ 2123  clear
+ 2124  k api-resources
+ 2125  k api-resources | grep -i horizontal
+ 2126  clear
+ 2127  ls
+ 2128  k get hpa
+ 2129  k get deploy
+ 2130  k delete deploy --all
+ 2131  k get pod
+ 2132  k get po -A
+ 2133  k top pod ramanapp -n sarva
+ 2134  k get pods -n kube-system
+ 2135  clear
+ 2136  k get po -n kube-system
+ 2137  git clone https://github.com/ramannkhanna2/k8s_metrics_server.git
+ 2138  ls
+ 2139  cd k8s_metrics_server/
+ 2140  ls
+ 2141  cd deploy/
+ 2142  ls
+ 2143  cd 1.8+/
+ 2144  ls
+ 2145  cat metrics-server-deployment.yaml 
+ 2146  clear
+ 2147  ls
+ 2148  k create -f .
+ 2149  k get po -n kube-system
+ 2150  k top pod ramanapp -n sarva
+ 2151  k top nodes
+ 2152  clear
+ 2153  cd ..
+ 2154  ls
+ 2155  cd ..
+ 2156  ls
+ 2157  cd ..
+ 2158  ls
+ 2159  cd k8s_metrics_server/
+ 2160  cd ..
+ 2161  ls
+ 2162  vi deploy2.yaml
+ 2163  k create -f deploy2.yaml 
+ 2164  k get deploy
+ 2165  k describe deploy
+ 2166  k get deploy
+ 2167  cat deploy2.yaml 
+ 2168  kubectl autoscale deployment ubuntu-deployment --cpu-percent=70 --min=1 --max=5
+ 2169  k get hpa
+ 2170  k top pod
+ 2171  k get po
+ 2172  k exec -it ubuntu-deployment-5756d59999-s5rf2 -- /bin/bash
+ 2173  histpry
+ 2174  history
+ 
+ 
+ 
+ root@master:~/raman# cat deploy2.yaml 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ubuntu-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ubuntu
+  template:
+    metadata:
+      labels:
+        app: ubuntu
+    spec:
+      containers:
+      - name: ubuntu-container
+        image: ubuntu:20.04
+        command: ["sleep", "infinity"]
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+            
+            
+            
+            
+================================================================================================
+
+SECRETS
+
+    encrypt the data first of all
+password :
+   echo 'ramankhanna123' | base64
+
+username :
+   echo 'ramankhanna' | base64
+
+  462  cat secret.yaml
+  463  kubectl apply -f secret.yaml
+  464  kubectl get secret
+  465  kubectl describe secret my-secrets
+  466  kubectl describe secret my-secrets -o yaml
+  467  vi secret-pod.yaml
+  468  kubectl apply -f secret
+  469  kubectl apply -f secret-pod.yaml
+  470  kubectl get pods
+  471  kubectl exec -it myapp-pod1 -- /bin/bash
+  472  kubectl exec -it myapp-pod2 -- /bin/bash
+     #to access username and password as env variables in pod2 :
+       echo $SECRET_USERNAME
+       echo $SECRET_PASSWD
+
+  473  cat secret-pod.yaml
+  474  cat secret.yaml
+  475  history
+root@tech-master:/gagan# cat secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: my-secrets
+type: Opaque
+data:
+  username: cmFtYW5raGFubmEK
+  password: cmFtYW5raGFubmExMjMK
+root@tech-master:/gagan# cat secret-pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-pod1
+  labels:
+    app: myapp
+spec:
+  containers:
+  - name: httpd-container
+    image: httpd
+    volumeMounts:
+    - name: credentials
+      mountPath: /tmp/creds
+      readOnly: true
+  volumes:
+  - name: credentials
+    secret:
+      secretName: my-secrets
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-pod2
+  labels:
+    app: myapp
+    type: front-end
+spec:
+  containers:
+  - name: httpd-container
+    image: httpd
+    env:
+    - name: SECRET_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: my-secrets
+          key: username
+    - name: SECRET_PASSWD
+      valueFrom:
+        secretKeyRef:
+          name: my-secrets
+          key: password
+
+
+===============================================================
+
+
+```
