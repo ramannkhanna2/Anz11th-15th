@@ -1,0 +1,645 @@
+```
+
+
+helm :
+    
+    https://helm.sh/docs/intro/install/
+
+
+helm list
+ 2010  helm repo list
+ 2011  helm repo add bitnami https://charts.bitnami.com/bitnami
+ 2012  helm list
+ 2013  helm repo list
+ 2014  helm search repo 
+ 2015  clear
+ 2016  helm repo add stable 
+ 2017  helm repo add stable https://charts.helm.sh/stable
+ 2018  helm repo list
+ 2019  helm list
+ 2020  helm seacrh bitnami/tomcat 
+ 2021  helm search repo  bitnami/tomcat 
+ 2022  helm search repo bitnami/jenkins
+ 2023  helm repo remove stable
+ 2024  helm repo list
+ 2025  clear
+ 2026  helm show values bitnami/tomcat
+ 2027  clear
+ 2028  helm show chart bitnami/tomcat
+ 2029  clear
+ 2030  helm show all bitnami/tomcat
+ 2031  clear
+ 2032  helm list
+ 2033  helm repo list
+ 2034  helm search repo bitnami/tomcat
+ helm install <release-name> <chart> -n <namespace>
+ 2035  helm install raman-test-tomcat bitnami/tomcat
+ 2036  helm list
+ 2037  clear
+ 2038  k get all
+ 2039  k describe pod
+ 2040  helm list
+ 2041  helm uninstall raman-test-tomcat
+ 2042  helm list
+ 2043  clear
+ 2044  k get all
+ 2045  k delete hpa --all
+ 2046  k delete svc --all
+ 2047  clear
+ 2048  helm install test-tomcat bitnami/tomcat --set service.type="NodePort" --set persistence.enabled=false --set replicaCount=3
+ 2049  helm list
+ 2050  clear
+ 2051  k get all
+ helm list
+ 1968  helm upgrade test-tomcat bitnami/tomcat --set replicaCount=3 --set service.type="NodePort" --set persistence.enabled=false
+ 1969  helm install test-tomcat bitnami/tomcat --set replicaCount=3 --set service.type="NodePort" --set persistence.enabled=false
+ 1970  clear
+ 1971  helm list
+ 1972  k get all
+ 1973  helm uninstall vermag5-tomcat
+ 1974  clear
+ 1975  k get all
+ 1976  helm upgrade test-tomcat bitnami/tomcat --set replicaCount=2 --set service.type="NodePort" --set persistence.enabled=false
+ 1977  clear
+ 1978  helm list
+ 1979  helm history test-tomcat
+ 1980  helm status test-tomcat
+ 1981  clear
+ 1982  k get all
+ 1983  helm upgrade test-tomcat bitnami/tomcat --set replicaCount=1 --set service.type="NodePort" --set persistence.enabled=false
+ 1984  helm history test-tomcat
+ 1985  k get all
+ 1986  helm rollback test-tomcat 1
+ 1987  k get all
+ 1988  helm history test-tomcat
+ 1989  helm show values bitnami/tomcat
+ 1990  clear
+ 1991  helm get values test-tomcat
+ 1992  helm rollback test-tomcat 3
+ 1993  k get po
+ 1994  helm get values test-tomcat
+ 1995  helm uninstall test-tomcat
+ 1996  k top nodes
+ 1997  alias k=kubectl
+ 1998  k top nodes
+ 1999  ls
+ 2000  cd raman/
+ 2001  ls
+ 2002  helm pull bitnami/tomcat
+ 2003  ls
+ 2004  helm pull bitnami/tomcat --untar
+ 2005  ls
+ 2006  cd tomcat/
+ 2007  ls
+ 2008  cd templates/
+ 2009  ls
+ 2010  cd ..
+ 2011  ls
+ 
+ ===================================================================================
+
+
+
+
+
+Health-checks :
+
+-----------------------------------
+Liveliness probe :
+
+-- start with incorrect cmnds for all probes , then rectify them ..
+-- this probe restarts the pod.
+
+
+root@master:~# cat liveliness.yml 
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+        - name: mongo
+          image: mongo:4.0.8
+          livenessProbe:
+            exec:
+              command:
+                - mongo
+                - --eval
+              # - "db.adminCommand('ping')"
+                - "db1.adminCommand('ping')" 
+            initialDelaySeconds: 1
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 2
+
+
+----------------------------
+
+Readiness probe :
+
+-- start from incorret command 
+-- this removes pod from svc endpoint .
+
+
+root@master:~# cat readiness.yml 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+        - name: mongo
+          image: mongo:4.0.8
+          readinessProbe:
+            exec:
+              command:
+                - mongo
+                - --eval
+              #  - "db.adminCommand('ping')"
+                - "db1.adminCommand('ping')" 
+            initialDelaySeconds: 1
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name:  mongodb-service
+spec:
+  selector:
+    app: mongo
+  ports:
+  - protocol:  TCP
+    port:  27017
+    targetPort:  27017
+
+
+
+
+
+-------------------------------------------------------
+
+
+
+LIVELINESS PROBE: 
+
+
+root@tech-master:/gagan# cat pod1.yml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app-pod1
+spec:
+  containers:
+    - name: container1
+      image: httpd:2.4
+      livenessProbe:
+        httpGet:
+          path: /
+          port: 80
+        initialDelaySeconds: 10
+        timeoutSeconds: 5
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app-pod2
+spec:
+  containers:
+    - name: container1
+      image: httpd:2.4
+      livenessProbe:
+        httpGet:
+          path: /abc
+          port: 80
+        initialDelaySeconds: 10                             #for first 30 secnds k8s just monitors 
+        timeoutSeconds: 5
+
+
+===============================================================================
+
+tf :
+    
+    https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli
+    
+    
+access key :
+AKIAZ7FSO3B5ZGXBDNF3
+
+secret access key :
+N7qXqPhmL6mpiXlE1lc+QmjfMxSeD1X4VOmNo+dA
+
+ vi ec2.tf
+ 2109  terraform validate
+ 2110  ls -a
+ 2111  terraform init
+ 2112  ls -a
+ 2113  cd .terraform/
+ 2114  ls
+ 2115  cd providers/
+ 2116  ls
+ 2117  cd registry.terraform.io/
+ 2118  ls
+ 2119  cd hashicorp/
+ 2120  ls
+ 2121  cd aws/
+ 2122  ls
+ 2123  cd 5.75.1/
+ 2124  ls
+ 2125  cd linux_amd64/
+ 2126  ls
+ 2127  cd ~
+ 2128  cd terra-raman/
+ 2129  ls
+ 2130  ls -a
+ 2131  terraform validate
+ 2132  terraform plan
+ 2133  ls
+ 2134  vi ec2.tf 
+ 2135  terraform plan
+ 2136  terraform apply
+ 2137  clear
+ 2138  terraform state list 
+ 2139  terraform validate
+ 2140  terraform plan
+ 2141  terraform apply
+ 
+ 
+ root@master:~/terra-raman# cat ec2.tf 
+provider "aws" {
+  region     = "us-east-1"
+  access_key = "AKIAZ7FSO3B5ZGXBDNF3"
+  secret_key = "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"
+}
+
+resource "aws_instance" "myec2" {
+   availability_zone="us-east-1a"
+   ami = "ami-0866a3c8686eaeeba"
+   instance_type = "t2.micro"
+tags= {
+Name= "raman-firstserver"
+}
+}
+
+
+
+===================================
+
+
+DEPLOYMENTS :
+
+```
+root@ip-172-31-44-195:~# cat main.tf 
+provider "kubernetes" {
+  config_path = "config"
+}
+
+resource "kubernetes_namespace" "raman" {
+  metadata {
+    name = "raman1"
+  }
+}
+
+
+resource "kubernetes_deployment" "dep1" {
+  metadata {
+    name      = "dep1"
+    namespace = kubernetes_namespace.raman.metadata[0].name
+  }
+
+  spec {
+    replicas = 2
+    strategy {
+      type = "Recreate"  # Use Recreate strategy
+      # Uncomment below for RollingUpdate strategy
+      # type = "RollingUpdate"
+      # rolling_update {
+      #   max_surge = "25%"
+      #   max_unavailable = "25%"
+      # }
+    }    
+
+    selector {
+      match_labels = {
+        app = "dep1"
+      }
+    }
+
+    template {
+      metadata {
+        labels = {
+          app = "dep1"
+        }
+      }
+
+      spec {
+        container {
+          name  = "my-flask-app"
+          image = "ramann123/natwest:my-flask-appV1"
+          port {
+            container_port = 5000
+          }
+          resources {
+            requests = {
+              cpu    = "100m"
+              memory = "64Mi"
+            }
+            limits = {
+              cpu    = "500m"
+              memory = "128Mi"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+==============================================================================================
+
+SERVICE :
+
+root@ip-172-31-44-195:~# cat svc.tf 
+resource "kubernetes_service" "dep1" {
+  metadata {
+    name      = "dep1-service"
+    namespace = kubernetes_namespace.raman.metadata[0].name
+  }
+
+  spec {
+    type = "NodePort"  # Set service type to NodePort
+
+    selector = {
+      app = "dep1"
+    }
+
+    port {
+      protocol    = "TCP"
+      port        = 5000       # Service port
+      target_port = 5000     # Container port
+      node_port   = 30000    # NodePort port (must be within the range 30000-32767)
+    }
+  }
+}
+
+
+========================================================================
+
+
+===========================================================
+
+HPA 
+
+root@ip-172-31-44-195:~# cat hpa.tf 
+resource "kubernetes_horizontal_pod_autoscaler" "hpa" {
+  metadata {
+    name      = "myhpa"
+    namespace = kubernetes_namespace.raman.metadata[0].name
+  }
+
+  spec {
+    scale_target_ref {
+      api_version = "apps/v1"
+      kind        = "Deployment"
+      name        = kubernetes_deployment.dep1.metadata[0].name
+    }
+    min_replicas = 1
+    max_replicas = 5
+    target_cpu_utilization_percentage = 70
+  }
+}
+
+
+
+====================================================================================
+
+SECRETS :
+
+
+root@ip-172-31-44-195:~# cat secret.tf 
+resource "kubernetes_secret" "my_secrets" {
+  metadata {
+    name = "my-secrets"
+    namespace = "raman1"
+  }
+
+  data = {
+    username = base64encode("ramankhanna")
+    password = base64encode("ramankhanna123")
+  }
+
+  type = "Opaque"
+}
+
+
+
+-------------------------------------------------
+
+
+
+root@ip-172-31-44-195:~# cat podsForSecrets.tf 
+resource "kubernetes_pod" "myapp_pod1" {
+  metadata {
+    name = "myapp-pod1"
+    namespace ="raman1"
+    labels = {
+      app = "myapp"
+    }
+  }
+
+  spec {
+    container {
+      name  = "httpd-container"
+      image = "httpd"
+      volume_mount {
+        name      = "credentials"
+        mount_path = "/tmp/creds"
+        read_only  = true
+      }
+    }
+
+    volume {
+      name = "credentials"
+
+      secret {
+        secret_name = kubernetes_secret.my_secrets.metadata[0].name
+      }
+    }
+  }
+}
+
+resource "kubernetes_pod" "myapp_pod2" {
+  metadata {
+    name = "myapp-pod2"
+    namespace= "raman1"
+    labels = {
+      app = "myapp"
+      type = "front-end"
+    }
+  }
+
+  spec {
+    container {
+      name  = "httpd-container"
+      image = "httpd"
+      env {
+        name = "SECRET_USERNAME"
+        value_from {
+          secret_key_ref {
+            name = kubernetes_secret.my_secrets.metadata[0].name
+            key  = "username"
+          }
+        }
+      }
+      env {
+        name = "SECRET_PASSWD"
+        value_from {
+          secret_key_ref {
+            name = kubernetes_secret.my_secrets.metadata[0].name
+            key  = "password"
+          }
+        }
+      }
+    }
+  }
+}
+
+
+
+
+
+===============================================================================
+
+
+
+
+
+
+===========================
+
+
+
+provider "google" {
+  credentials = file("tech.json")
+  project="techlanders-nov2024"  
+  region  = "us-central1"
+}
+
+resource "google_compute_instance" "mygcpserver" {
+  name         = "techlanders-gcp-instance"
+  machine_type = "f1-micro"
+  zone         = "us-central1-a"
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+  network_interface {
+    network = "default"
+    access_config {
+      // Ephemeral IP will be assigned
+    }
+  }
+  tags = ["my-gcp-instance"]
+}
+
+resource "google_compute_firewall" "var_demo" {
+  name    = "raman-variables"
+  network = "default"
+
+  allow {
+    protocol = "tcp"
+    ports    = ["443", "80", "53"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+}
+
+
+
+==================================================================
+
+history for reference :
+    
+    
+    cd terra-raman/
+ 2000  cat kube1.tf 
+ 2001  t state list
+ 2002  terraform state lits
+ 2003  terraform state lists
+ 2004  terraform state list
+ 2005  kubectl get po -n raman1
+ 2006  vi vi kube1.tf 
+ 2007  ls
+ 2008  vi kube1.tf 
+ 2009  k apply
+ 2010  t apply
+ 2011  alias t=terraform
+ 2012  t apply
+ 2013  ls
+ 2014  t state list
+ 2015  clear
+ 2016  k get pods
+ 2017  k get po
+ 2018  k get po -n raman1
+ 2019  alias k=kubectl
+ 2020  k get pods
+ 2021  t state list
+ 2022  vi service.yaml
+ 2023  t plan
+ 2024  ls
+ 2025  mv service.yaml service.tf 
+ 2026  t plan
+ 2027  t apply -auto-approve
+ 2028  k get all -n raman1
+ 2029  ls
+ 2030  ls -a
+ 2031  cat .terraform.lock.hcl 
+ 2032  ls
+ 2033  vi kube1.tf 
+ 2034  ls -a
+ 2035  vi gcp.tf
+ 2036  l
+ 2037  t plan
+ 2038  vi kube1.tf 
+ 2039  t plan
+ 2040  ls -a
+ 2041  cat .terraform.lock.hcl 
+ 2042  t init
+ 2043  t --v
+ 2044  t -v
+ 2045  t plan
+ 2046  ls
+ 2047  vi tech.json
+ 2048  t plan
+ 2049  t apply
+ 2050  t state list
+ 2051  t destroy
+ 2052  t state list
+ 
+ 
+ =======================================
+
+ ```
